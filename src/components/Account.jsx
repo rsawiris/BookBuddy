@@ -1,9 +1,27 @@
-
+import axios from "axios"
 import { useNavigate } from "react-router-dom"
 
 
-const Account = ({user, setUser, setToken }) => {
+const Account = ({user, setUser, setToken, reserved, setReserved }) => {
     const navigate = useNavigate()
+
+    const returnBook = async (resBook) => {
+        const token = window.localStorage.getItem('token')
+       
+            
+        await axios.delete(`https://fsa-book-buddy-b6e748d1380d.herokuapp.com/api/reservations/${resBook.id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+
+        setReserved(reserved.filter((book) =>{ return book.id !== resBook.id }))
+
+
+
+    }
+
     
     const logout = () => {
         window.localStorage.removeItem('token');
@@ -21,9 +39,28 @@ const Account = ({user, setUser, setToken }) => {
             <button onClick={() => {logout()}}>Logout</button>
             <hr/>
             <h2>Email: {user.email}</h2>
-            <h4>This could be a good place to show checked out books...</h4>
-            
-            
+            <h3>Books checked Out Total</h3>
+            {
+                reserved.length === 0 ? (
+                    <h4>No books checked out</h4>
+                ) : (
+                    
+                    reserved.map((book) => {
+                        return (
+                            <div key={book.id}>
+                                <ol>
+                                <li> {book.title} 
+                                </li>
+                                <button onClick={() => {returnBook(book)}}>Return</button>
+                                </ol>
+                            </div>
+                        
+                        )
+                        
+                    })
+                    
+                )
+            }
            
         </div>
     )
